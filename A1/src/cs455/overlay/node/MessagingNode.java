@@ -1,12 +1,13 @@
 package cs455.overlay.node;
 
+import java.net.Socket;
 import java.util.Scanner;
 
 /**
  * 
  * @author Cooper Scott
  * CS455 - Overlay
- * MessagingNode.java
+ * cs455.overlay.node.MessagingNode.java
  * Executable Class that works as a node in the network
  *
  */
@@ -21,6 +22,20 @@ public class MessagingNode {
 	
 	private String regHost;
 	private int regPort;
+	
+	private void connect(){
+		  try{
+			     Socket socket = new Socket("localhost", 5555);
+			     System.out.println("Connected to port 5555");
+//			     out = new PrintWriter(socket.getOutputStream(), 
+//			                 true);
+//			     in = new BufferedReader(new InputStreamReader(
+//			                socket.getInputStream()));
+			   } catch (Exception e) {
+			     System.out.println("Unknown host: kq6py");
+			     System.exit(1);
+			   }
+	}
 	
 	private void usage(){
 		System.err.println("usage: java MessagingNode registry-host registry-port");
@@ -39,6 +54,8 @@ public class MessagingNode {
 		}catch(Exception e){
 			messagingnode.usage();
 		}
+		
+		messagingnode.connect();
 		
 		//command loop
 		Scanner kb = new Scanner(System.in);

@@ -1,12 +1,17 @@
 package cs455.overlay.node;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Scanner;
+
+import cs455.overlay.transport.TCPServerThread;
 
 /**
  * 
  * @author Cooper Scott
  * CS455 - Overlay
- * Registry.java
+ * cs455.overlay.node.Registry.java
  * Executable Class that works as the registry for the overlay
  *
  */
@@ -18,6 +23,7 @@ public class Registry {
 	 * args - portnum - port number to be used communicating with messaging nodes (int)
 	 */
 	private int portnum;
+	private Thread serverThread;
 	
 	private void usage(){
 		System.err.println("usage: java Registry portnum");
@@ -33,6 +39,14 @@ public class Registry {
 			registry.portnum = Integer.parseInt(args[0]);
 		}catch(Exception e){
 			registry.usage();
+		}
+		
+		try {
+			registry.serverThread = new Thread(new TCPServerThread(registry.portnum));
+			registry.serverThread.start();
+		} catch (Exception e) {
+			System.err.println("Unable to listen on port " + registry.portnum);
+			System.exit(1);
 		}
 		
 		//command loop
@@ -51,6 +65,12 @@ public class Registry {
 				break;
 			else
 				System.err.printf("Unrecognized command \"%s\". Try again\n", input);
+		}
+		registry.serverThread.interrupt();
+		try {
+			registry.serverThread.join();
+		} catch (InterruptedException e) {
+			System.err.println("Thread error occurred");
 		}
 		kb.close();
 	}
