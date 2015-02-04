@@ -25,7 +25,7 @@ public class MessagingNode {
 	
 	private void connect(){
 		  try{
-			     Socket socket = new Socket("localhost", 5555);
+				Socket socket = new Socket("localhost", 5555);
 			     System.out.println("Connected to port 5555");
 //			     out = new PrintWriter(socket.getOutputStream(), 
 //			                 true);

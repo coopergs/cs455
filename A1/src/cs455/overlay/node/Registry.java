@@ -1,8 +1,5 @@
 package cs455.overlay.node;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Scanner;
 
 import cs455.overlay.transport.TCPServerThread;
@@ -72,6 +69,7 @@ public class Registry {
 		} catch (InterruptedException e) {
 			System.err.println("Thread error occurred");
 		}
+		System.out.println("Registry Closed.");
 		kb.close();
 	}
 
