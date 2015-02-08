@@ -14,7 +14,7 @@ import java.net.SocketException;
  *
  */
 
-public class TCPServerThread implements Runnable{
+public class TCPServerThread extends Thread{
 	
 	private int port;
 	private ServerSocket server;

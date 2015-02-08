@@ -22,17 +22,18 @@ public class MessagingNode {
 	
 	private String regHost;
 	private int regPort;
+	private Socket regSocket;
 	
-	private void connect(){
+	private void connectToRegistry(){
 		  try{
-				Socket socket = new Socket("localhost", 5555);
+				regSocket = new Socket(regHost, regPort);
 			     System.out.println("Connected to port 5555");
 //			     out = new PrintWriter(socket.getOutputStream(), 
 //			                 true);
 //			     in = new BufferedReader(new InputStreamReader(
 //			                socket.getInputStream()));
 			   } catch (Exception e) {
-			     System.out.println("Unknown host: kq6py");
+			     System.out.println("Unable to connect to host or port");
 			     System.exit(1);
 			   }
 	}
@@ -55,7 +56,7 @@ public class MessagingNode {
 			messagingnode.usage();
 		}
 		
-		messagingnode.connect();
+		messagingnode.connectToRegistry();
 		
 		//command loop
 		Scanner kb = new Scanner(System.in);
