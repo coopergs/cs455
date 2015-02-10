@@ -28,5 +28,15 @@ public class TCPConnection {
 	public void sendData(byte[] dataToSend) throws IOException {
 		sender.sendData(dataToSend);
 	}
+	
+	public void closeConnection(){
+		reciever.interrupt();
+		try{
+			reciever.join();
+			socket.close();
+		} catch (Exception e) {
+			System.out.println("Error with closing of thread");
+		}
+	}
 
 }

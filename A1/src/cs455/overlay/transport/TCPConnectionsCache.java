@@ -28,5 +28,12 @@ public class TCPConnectionsCache {
 	public TCPConnection get(int i){
 		return store.get(i);
 	}
+	
+	public void closeAll(){
+		for(TCPConnection tcp: store){
+			tcp.closeConnection();
+			store.remove(tcp);
+		}
+	}
 
 }

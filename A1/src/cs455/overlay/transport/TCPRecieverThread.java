@@ -1,3 +1,4 @@
+
 package cs455.overlay.transport;
 
 import java.io.DataInputStream;
@@ -30,9 +31,7 @@ public class TCPRecieverThread implements Runnable{
 		while (socket != null){
 			try {
 				dataLength = in.readInt();
-				byte[] data = new byte[dataLength];
-				in.readFully(data, 0, dataLength);
-				System.out.println("Recieved Stuff");	//TODO send to main thread
+				System.out.println(dataLength);
 				} catch (SocketException se) {
 					System.out.println(se.getMessage());
 					break;

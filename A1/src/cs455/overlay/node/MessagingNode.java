@@ -1,5 +1,8 @@
 package cs455.overlay.node;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -27,11 +30,9 @@ public class MessagingNode {
 	private void connectToRegistry(){
 		  try{
 				regSocket = new Socket(regHost, regPort);
-			     System.out.println("Connected to port 5555");
-//			     out = new PrintWriter(socket.getOutputStream(), 
-//			                 true);
-//			     in = new BufferedReader(new InputStreamReader(
-//			                socket.getInputStream()));
+			    System.out.println("Connected to port 5555");
+			    DataOutputStream dout = new DataOutputStream(regSocket.getOutputStream());
+			    dout.writeInt(123456789);
 			   } catch (Exception e) {
 			     System.out.println("Unable to connect to host or port");
 			     System.exit(1);
