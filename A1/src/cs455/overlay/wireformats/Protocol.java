@@ -1,5 +1,19 @@
 package cs455.overlay.wireformats;
 
-public class Protocol {
+public interface Protocol {
+	
+	final int OVERLAY_NODE_SENDS_REGISTRATION = 2;
+	final int REGISTRY_REPORTS_REGISTRATION_STATUS  = 3;
+	final int OVERLAY_NODE_SENDS_DEREGISTRATION = 4;
+	final int REGISTRY_REPORTS_DEREGISTRATION_STATUS = 5;
+	final int REGISTRY_SENDS_NODE_MANIFEST = 6;
+	final int NODE_REPORTS_OVERLAY_SETUP_STATUS = 7;
+	final int REGISTRY_REQUESTS_TASK_INITIATE = 8;
+	final int OVERLAY_NODE_SENDS_DATA = 9;
+	final int OVERLAY_NODE_REPORTS_TASK_FINISHED = 10;
+	final int REGISTRY_REQUESTS_TRAFFIC_SUMMARY = 11;
+	final int OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY = 12;
+	
+	public byte[] getBytes();
 
 }

@@ -30,6 +30,8 @@ public class TCPRecieverThread implements Runnable{
 		int dataLength;
 		while (socket != null){
 			try {
+				byte[] bytes = null;
+				in.readFully(bytes);
 				dataLength = in.readInt();
 				System.out.println(dataLength);
 				} catch (SocketException se) {

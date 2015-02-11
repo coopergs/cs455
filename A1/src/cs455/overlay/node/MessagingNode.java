@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import cs455.overlay.wireformats.*;
+
 /**
  * 
  * @author Cooper Scott
@@ -32,7 +34,8 @@ public class MessagingNode {
 				regSocket = new Socket(regHost, regPort);
 			    System.out.println("Connected to port 5555");
 			    DataOutputStream dout = new DataOutputStream(regSocket.getOutputStream());
-			    dout.writeInt(123456789);
+			    Protocol p = new OverlayNodeSendsRegistration("blubber", 1234);
+			    dout.write(p.getBytes());
 			   } catch (Exception e) {
 			     System.out.println("Unable to connect to host or port");
 			     System.exit(1);
