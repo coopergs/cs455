@@ -21,8 +21,11 @@ public class EventFactory {
 		try {
 			int messageType = din.readInt();
 			switch(messageType){
-			case 2:
+			case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
 				OverlayNodeSendsRegistration(din);
+				break;
+			case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
+				RegistryReportsRegistrationStatus(din);
 				break;
 			}
 		} catch (IOException e) {
@@ -39,6 +42,19 @@ public class EventFactory {
 			System.out.println(ip);
 			int port = in.readInt();
 			System.out.println(port);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void RegistryReportsRegistrationStatus(DataInputStream in){
+		try {
+			int status = in.readInt();
+			System.out.println(status);
+			int length = in.readInt();
+			byte[] messageBytes = new byte[length];
+			String message = new String(messageBytes);
+			System.out.println(message);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

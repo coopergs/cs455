@@ -34,7 +34,7 @@ public class MessagingNode {
 				regSocket = new Socket(regHost, regPort);
 			    System.out.println("Connected to port 5555");
 			    DataOutputStream dout = new DataOutputStream(regSocket.getOutputStream());
-			    Protocol p = new OverlayNodeSendsRegistration("blubber", 1234);
+			    Protocol p = new RegistryReportsRegistrationStatus(4567, "No brosen!");
 			    byte[] data = p.getBytes();
 			    dout.writeInt(data.length);
 			    dout.write(data, 0, data.length);
