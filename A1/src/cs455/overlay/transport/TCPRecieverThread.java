@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
+import cs455.overlay.wireformats.EventFactory;
+
 /**
  * 
  * @author Cooper Scott
@@ -30,10 +32,10 @@ public class TCPRecieverThread implements Runnable{
 		int dataLength;
 		while (socket != null){
 			try {
-				byte[] bytes = null;
-				in.readFully(bytes);
 				dataLength = in.readInt();
-				System.out.println(dataLength);
+				byte[] data = new byte[dataLength];
+				in.readFully(data, 0, dataLength);
+				EventFactory.getInstance().createEvents(data);
 				} catch (SocketException se) {
 					System.out.println(se.getMessage());
 					break;

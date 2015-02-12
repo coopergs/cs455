@@ -35,9 +35,12 @@ public class MessagingNode {
 			    System.out.println("Connected to port 5555");
 			    DataOutputStream dout = new DataOutputStream(regSocket.getOutputStream());
 			    Protocol p = new OverlayNodeSendsRegistration("blubber", 1234);
-			    dout.write(p.getBytes());
+			    byte[] data = p.getBytes();
+			    dout.writeInt(data.length);
+			    dout.write(data, 0, data.length);
 			   } catch (Exception e) {
 			     System.out.println("Unable to connect to host or port");
+			     e.printStackTrace();
 			     System.exit(1);
 			   }
 	}
