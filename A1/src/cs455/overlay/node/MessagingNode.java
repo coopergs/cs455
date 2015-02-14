@@ -1,8 +1,6 @@
 package cs455.overlay.node;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -34,7 +32,7 @@ public class MessagingNode {
 				regSocket = new Socket(regHost, regPort);
 			    System.out.println("Connected to port 5555");
 			    DataOutputStream dout = new DataOutputStream(regSocket.getOutputStream());
-			    Protocol p = new RegistryReportsRegistrationStatus(4567, "No brosen!");
+			    Protocol p = new OverlayNodeReportsTrafficSummary(1,2,3,4,5,6);
 			    byte[] data = p.getBytes();
 			    dout.writeInt(data.length);
 			    dout.write(data, 0, data.length);

@@ -22,7 +22,7 @@ public class OverlayNodeSendsRegistration implements Protocol{
 		
 		try {
 			dout.writeInt(OVERLAY_NODE_SENDS_REGISTRATION);
-			dout.writeInt(ip.getBytes().length);
+			dout.writeByte(ip.getBytes().length);
 			dout.write(ip.getBytes());
 			dout.writeInt(port);
 			dout.flush();

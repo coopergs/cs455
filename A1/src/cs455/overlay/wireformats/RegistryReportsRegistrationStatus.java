@@ -23,7 +23,7 @@ public class RegistryReportsRegistrationStatus implements Protocol{
 		try {
 			dout.writeInt(REGISTRY_REPORTS_REGISTRATION_STATUS);
 			dout.writeInt(status);
-			dout.writeInt(message.getBytes().length);
+			dout.writeByte(message.getBytes().length);
 			dout.write(message.getBytes());
 			dout.flush();
 			bytes = baOutputStream.toByteArray();
