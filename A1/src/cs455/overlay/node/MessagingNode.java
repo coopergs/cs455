@@ -1,8 +1,10 @@
 package cs455.overlay.node;
 
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
+import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.wireformats.*;
 
 /**
@@ -24,23 +26,22 @@ public class MessagingNode implements Node{
 	
 	private String regHost;
 	private int regPort;
-	private Socket regSocket;
+	private TCPConnection registry;
 	
-//	private void connectToRegistry(){
-//		  try{
-//				regSocket = new Socket(regHost, regPort);
-//			    System.out.println("Connected to port 5555");
-//			    DataOutputStream dout = new DataOutputStream(regSocket.getOutputStream());
-//			    Protocol p = new OverlayNodeReportsTrafficSummary(1,2,3,4,5,6);
-//			    byte[] data = p.getBytes();
-//			    dout.writeInt(data.length);
-//			    dout.write(data, 0, data.length);
-//			   } catch (Exception e) {
-//			     System.out.println("Unable to connect to host or port");
-//			     e.printStackTrace();
-//			     System.exit(1);
-//			   }
-//	}
+	private void connectToRegistry(){
+		  try{
+				registry = new TCPConnection(new Socket(regHost, regPort), this);
+			    System.out.println("Connected to registry on port " + regPort);
+//			    InetAddress inetAddr = InetAddress.getLocalHost();
+//			    byte[] addr = inetAddr.getAddress();
+//			    System.out.println(new String(addr));
+//			    System.out.println(InetAddress.getLocalHost());
+
+			   } catch (Exception e) {
+			     System.out.println("Unable to connect to host or port");
+			     System.exit(1);
+			   }
+	}
 	
 	private void usage(){
 		System.err.println("usage: java MessagingNode registry-host registry-port");
@@ -92,6 +93,8 @@ public class MessagingNode implements Node{
 		}catch(Exception e){
 			messagingnode.usage();
 		}
+		
+		messagingnode.connectToRegistry();
 		
 		//command loop
 		Scanner kb = new Scanner(System.in);

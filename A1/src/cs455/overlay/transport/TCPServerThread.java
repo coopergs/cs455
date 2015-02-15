@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import cs455.overlay.node.Node;
+
 /**
  * 
  * @author Cooper Scott
@@ -19,10 +21,12 @@ public class TCPServerThread implements Runnable{
 	private int port;
 	private ServerSocket server;
 	private TCPConnectionsCache cache;
+	private Node node;
 	
-	public TCPServerThread(int portnum) throws Exception{
+	public TCPServerThread(int portnum, Node n) throws Exception{
 		try {
 			this.port = portnum;
+			this.node = n;
 			server = new ServerSocket(port);
 			cache = new TCPConnectionsCache();
 		} catch (Exception e) {
@@ -40,7 +44,7 @@ public class TCPServerThread implements Runnable{
 			}
 			try {
 				Socket s = server.accept();
-				int id = cache.add(new TCPConnection(s));
+				int id = cache.add(new TCPConnection(s, node));
 				System.out.println("Connection Established: id# " + id);
 			} catch (IOException e) {}
 		}

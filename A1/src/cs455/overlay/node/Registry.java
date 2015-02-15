@@ -75,7 +75,7 @@ public class Registry implements Node{
 		}
 		
 		try {
-			registry.serverThread = new Thread(new TCPServerThread(registry.portnum));
+			registry.serverThread = new Thread(new TCPServerThread(registry.portnum, registry));
 			registry.serverThread.start();
 		} catch (Exception e) {
 			System.err.println("Unable to listen on port " + registry.portnum);

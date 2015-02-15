@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
+import cs455.overlay.node.Node;
+import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 
 /**
@@ -21,9 +23,11 @@ public class TCPRecieverThread implements Runnable{
 	
 	private Socket socket;
 	private DataInputStream in;
+	private Node node;
 	
-	public TCPRecieverThread(Socket s) throws IOException {
+	public TCPRecieverThread(Socket s, Node n) throws IOException {
 		this.socket = s;
+		this.node = n;
 		in = new DataInputStream(socket.getInputStream());
 	}
 	
@@ -35,7 +39,7 @@ public class TCPRecieverThread implements Runnable{
 				dataLength = in.readInt();
 				byte[] data = new byte[dataLength];
 				in.readFully(data, 0, dataLength);
-				EventFactory.getInstance().createEvents(data);
+				Event e = EventFactory.getInstance().createEvent(data);
 				} catch (SocketException se) {
 					System.out.println(se.getMessage());
 					break;
