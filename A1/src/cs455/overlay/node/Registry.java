@@ -3,6 +3,7 @@ package cs455.overlay.node;
 import java.util.Scanner;
 
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.wireformats.*;
 
 /**
  * 
@@ -13,7 +14,7 @@ import cs455.overlay.transport.TCPServerThread;
  *
  */
 
-public class Registry {
+public class Registry implements Node{
 	
 	/**
 	 * Main method
@@ -26,6 +27,41 @@ public class Registry {
 		System.err.println("usage: java Registry portnum");
 		System.err.println("portnum: port number to be used communicating with messaging nodes");
 		System.exit(1);
+	}
+	
+	public void processEvent(Event e){
+		if(e.message instanceof OverlayNodeSendsRegistration)
+			registerNode(e);
+		else if(e.message instanceof OverlayNodeSendsDeregistration)
+			deregisterNode(e);
+		else if(e.message instanceof NodeReportsOverlaySetupStatus)
+			acceptSetupStatus(e);
+		else if(e.message instanceof OverlayNodeReportsTaskFinished)
+			acceptTaskFinished(e);
+		else if(e.message instanceof OverlayNodeReportsTrafficSummary)
+			acceptTrafficSummary(e);
+	}
+	
+	private void registerNode(Event e){
+		//register node
+		//send confirmation
+	}
+	
+	private void deregisterNode(Event e){
+		//deregister node
+		//send confirmation
+	}
+	
+	private void acceptSetupStatus(Event e){
+		//accept setup status
+	}
+	
+	private void acceptTaskFinished(Event e){
+		//accept task finished
+	}
+	
+	private void acceptTrafficSummary(Event e){
+		//accept traffic Summary
 	}
 	
 	public static void main(String[] args){

@@ -15,41 +15,42 @@ public class EventFactory {
 		return instance;
 	}
 	
-	public void createEvents(byte[] b){
+	public Event createEvent(byte[] b){
 		ByteArrayInputStream baInputStream = new ByteArrayInputStream(b);
 		DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
+		Event e = null;
 		try {
 			int messageType = din.readInt();
 			switch(messageType){
 			case Protocol.OVERLAY_NODE_SENDS_REGISTRATION:
-				OverlayNodeSendsRegistration(din);
+				e = OverlayNodeSendsRegistration(din);
 				break;
 			case Protocol.REGISTRY_REPORTS_REGISTRATION_STATUS:
-				RegistryReportsRegistrationStatus(din);
+				e = RegistryReportsRegistrationStatus(din);
 				break;
 			case Protocol.OVERLAY_NODE_SENDS_DEREGISTRATION:
-				OverlayNodeSendsDeregistration(din);
+				e = OverlayNodeSendsDeregistration(din);
 				break;
 			case Protocol.REGISTRY_REPORTS_DEREGISTRATION_STATUS:
-				RegistryReportsDeregistrationStatus(din);
+				e = RegistryReportsDeregistrationStatus(din);
 				break;
 			case Protocol.REGISTRY_SENDS_NODE_MANIFEST:
-				RegistrySendsNodeManifest(din);
+				e = RegistrySendsNodeManifest(din);
 				break;
 			case Protocol.NODE_REPORTS_OVERLAY_SETUP_STATUS:
-				NodeReportsOverlaySetupStatus(din);
+				e = NodeReportsOverlaySetupStatus(din);
 				break;
 			case Protocol.REGISTRY_REQUESTS_TASK_INITIATE:
-				RegistryRequestsTaskInitiate(din);
+				e = RegistryRequestsTaskInitiate(din);
 				break;
 			case Protocol.OVERLAY_NODE_SENDS_DATA:
-				OverlayNodeSendsData(din);
+				e = OverlayNodeSendsData(din);
 				break;
 			case Protocol.OVERLAY_NODE_REPORTS_TASK_FINISHED:
-				OverlayNodeReportsTaskFinished(din);
+				e = OverlayNodeReportsTaskFinished(din);
 				break;
 			case Protocol.REGISTRY_REQUESTS_TRAFFIC_SUMMARY:
-				RegistryRequestsTrafficSummary(din);
+				e = RegistryRequestsTrafficSummary(din);
 				break;
 			case Protocol.OVERLAY_NODE_REPORTS_TRAFFIC_SUMMARY:
 				OverlayNodeReportsTrafficSummary(din);
@@ -57,41 +58,42 @@ public class EventFactory {
 			}
 			din.close();
 			baInputStream.close();
-		} catch (IOException e) {
+		} catch (IOException e1) {
 			System.out.println("Error reading message.");
 		}
+		return e;
 		
 	}
 	
-	private void OverlayNodeSendsRegistration(DataInputStream in){
+	private Event OverlayNodeSendsRegistration(DataInputStream in){
 		try {
 			byte length = in.readByte();
 			byte[] ipBytes = new byte[length];
 			in.read(ipBytes, 0, length);
 			String ip = new String(ipBytes);
-			System.out.println(ip);
 			int port = in.readInt();
-			System.out.println(port);
+			return new Event(new OverlayNodeSendsRegistration(ip, port));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void RegistryReportsRegistrationStatus(DataInputStream in){
+	private Event RegistryReportsRegistrationStatus(DataInputStream in){
 		try {
 			int status = in.readInt();
-			System.out.println(status);
 			byte length = in.readByte();
 			byte[] messageBytes = new byte[length];
 			in.readFully(messageBytes, 0, length);
 			String message = new String(messageBytes);
-			System.out.println(message);
+			return new Event(new RegistryReportsRegistrationStatus(status, message));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void OverlayNodeSendsDeregistration(DataInputStream in){
+	private Event OverlayNodeSendsDeregistration(DataInputStream in){
 		try {
 			byte length = in.readByte();
 			byte[] ipBytes = new byte[length];
@@ -102,127 +104,125 @@ public class EventFactory {
 			System.out.println(port);
 			int id = in.readInt();
 			System.out.println(id);
+			return new Event(new OverlayNodeSendsDeregistration(ip, port, id));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void RegistryReportsDeregistrationStatus(DataInputStream in){
+	private Event RegistryReportsDeregistrationStatus(DataInputStream in){
 		try {
 			int status = in.readInt();
-			System.out.println(status);
 			byte length = in.readByte();
 			byte[] messageBytes = new byte[length];
 			in.readFully(messageBytes, 0, length);
 			String message = new String(messageBytes);
-			System.out.println(message);
+			return new Event(new RegistryReportDeregistrationStatus(status, message));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void RegistrySendsNodeManifest(DataInputStream in){
+	private Event RegistrySendsNodeManifest(DataInputStream in){
 		try {
 			int size = in.readByte();
+			int[] ids = new int[size];
+			String[] ips = new String[size];
+			int[] ports = new int[size];
 			for(int i=0;i<size;i++){
-				int id = in.readInt();
-				System.out.println(i + " " + id);
+				ids[i] = in.readInt();
 				byte length = in.readByte();
 				byte[] ipBytes = new byte[length];
 				in.readFully(ipBytes, 0, length);
-				String ip = new String(ipBytes);
-				System.out.println(i + " " + ip);
-				int port = in.readInt();
-				System.out.println(i + " " + port);
+				ips[i] = new String(ipBytes);
+				ports[i] = in.readInt();
 			}
 			byte length = in.readByte();
+			int[] allIds = new int[length];
 			for(int i=0;i<length;i++){
-				int id = in.readInt();
-				System.out.println(id);
+				allIds[i] = in.readInt();
 			}
+			return new Event(new RegistrySendsNodeManifest(ids, ips, ports, allIds));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void NodeReportsOverlaySetupStatus(DataInputStream in){
+	private Event NodeReportsOverlaySetupStatus(DataInputStream in){
 		try {
 			int status = in.readInt();
-			System.out.println(status);
 			byte length = in.readByte();
 			byte[] messageBytes = new byte[length];
 			in.readFully(messageBytes, 0, length);
 			String message = new String(messageBytes);
-			System.out.println(message);
+			return new Event(new NodeReportsOverlaySetupStatus(status, message));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void RegistryRequestsTaskInitiate(DataInputStream in){
+	private Event RegistryRequestsTaskInitiate(DataInputStream in){
 		try {
 			int numPackets = in.readInt();
-			System.out.println(numPackets);
+			return new Event(new RegistryRequestsTaskInitiate(numPackets));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void OverlayNodeSendsData(DataInputStream in){
+	private Event OverlayNodeSendsData(DataInputStream in){
 		try {
 			int destination = in.readInt();
-			System.out.println(destination);
 			int source = in.readInt();
-			System.out.println(source);
 			int payload = in.readInt();
-			System.out.println(payload);
 			int pathLength = in.readInt();
 			int[] path = new int[pathLength];
 			for(int i=0;i<pathLength;i++){
 				path[i] = in.readInt();
-				System.out.println(path[i]);
 			}
+			return new Event(new OverlayNodeSendsData(destination, source, payload, path));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void OverlayNodeReportsTaskFinished(DataInputStream in){
+	private Event OverlayNodeReportsTaskFinished(DataInputStream in){
 		try {
 			int length = in.readInt();
 			byte[] ipBytes = new byte[length];
 			in.readFully(ipBytes, 0, length);
 			String ip = new String(ipBytes);
-			System.out.println(ip);
 			int port = in.readInt();
-			System.out.println(port);
 			int id = in.readInt();
-			System.out.println(id);
+			return new Event(new OverlayNodeReportsTaskFinished(ip, port, id));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	private void RegistryRequestsTrafficSummary(DataInputStream in){
-		System.out.println("REGISTRY_REQUESTS_TRAFFIC_SUMMARY");
+	private Event RegistryRequestsTrafficSummary(DataInputStream in){
+		return new Event(new RegistryRequestsTrafficSummary());
 	}
 	
-	private void OverlayNodeReportsTrafficSummary(DataInputStream in){
+	private Event OverlayNodeReportsTrafficSummary(DataInputStream in){
 		try {
 			int id = in.readInt();
-			System.out.println(id);
 			int packetsSent = in.readInt();
-			System.out.println(packetsSent);
 			int packetsRelayed = in.readInt();
-			System.out.println(packetsRelayed);
 			long sumSent = in.readLong();
-			System.out.println(sumSent);
 			int packetsRecieved = in.readInt();
-			System.out.println(packetsRecieved);
 			long sumRecieved = in.readLong();
-			System.out.println(sumRecieved);
+			return new Event(new OverlayNodeReportsTrafficSummary(id, packetsSent, packetsRelayed, sumSent, packetsRecieved, sumRecieved));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 }
