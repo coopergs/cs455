@@ -30,6 +30,7 @@ public class MessagingNode implements Manager{
 	private TCPConnection registry;
 	private TCPServerThread serverThread;
 	private int recievingPort;
+	private int nodeID;
 	
 	private void setReciever(){
 		try {
@@ -75,11 +76,15 @@ public class MessagingNode implements Manager{
 	private void acceptRegistrationStatus(Event e){
 		RegistryReportsRegistrationStatus r = (RegistryReportsRegistrationStatus) e.message;
 		System.out.println(r.message);
-		System.out.println(r.status);
+		nodeID = r.status;
+		if(r.status < 0)
+			System.exit(1);
 	}
 	
 	private void acceptDeregistrationStatus(Event e){
-		//Accept Deregistration
+		RegistryReportDeregistrationStatus r = (RegistryReportDeregistrationStatus) e.message;
+		System.out.println(r.message);
+		System.exit(0);
 	}
 	
 	private void processManifest(Event e){
@@ -110,17 +115,22 @@ public class MessagingNode implements Manager{
 		messagingnode.connectToRegistry();
 		
 		//command loop
+		@SuppressWarnings("resource")
 		Scanner kb = new Scanner(System.in);
 		while(true){
 			String input = kb.nextLine();
 			if(input.equals("print-counters-and-diagnostics"))
 				System.out.println("print-counters-and-diagnostics");
-			else if(input.equals("exit-overlay"))
-				break;
-			else
+			else if(input.equals("exit-overlay")){
+				try {
+					OverlayNodeSendsDeregistration r = new OverlayNodeSendsDeregistration(InetAddress.getLocalHost().getHostAddress(), messagingnode.recievingPort, messagingnode.nodeID);
+					messagingnode.registry.sendData(r.getBytes());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}else
 				System.err.printf("Unrecognized command \"%s\". Try again\n", input);
 		}
-		kb.close();
 	}
 
 }

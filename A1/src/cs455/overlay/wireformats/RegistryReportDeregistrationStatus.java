@@ -7,8 +7,8 @@ import java.io.IOException;
 
 public class RegistryReportDeregistrationStatus implements Protocol{
 	
-	private int status;
-	private String message;
+	public int status;
+	public String message;
 	
 	public RegistryReportDeregistrationStatus(int status, String message){
 		this.status = status;

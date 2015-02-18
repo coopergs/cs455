@@ -1,18 +1,15 @@
 package cs455.overlay.node;
 
-import java.io.IOException;
-
-import cs455.overlay.transport.TCPSender;
-import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.transport.TCPConnection;
 
 public class Node {
 	
 	private String ip;
 	private int port;
 	private int overlayID;
-	private TCPSender tcp;
+	public TCPConnection tcp;
 	
-	public Node(String ip, int port, int id, TCPSender tcp){
+	public Node(String ip, int port, int id, TCPConnection tcp){
 		this.ip = ip;
 		this.port = port;
 		this.overlayID = id;
@@ -29,14 +26,6 @@ public class Node {
 	
 	public int getID(){
 		return overlayID;
-	}
-	
-	public void send(Protocol p){
-		try {
-			tcp.sendData(p.getBytes());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 }

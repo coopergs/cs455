@@ -7,9 +7,9 @@ import java.io.IOException;
 
 public class OverlayNodeSendsDeregistration implements Protocol{
 	
-	private String ip;
-	private int port;
-	private int id;
+	public String ip;
+	public int port;
+	public int id;
 	
 	public OverlayNodeSendsDeregistration(String ip, int port, int id){
 		this.ip = ip;

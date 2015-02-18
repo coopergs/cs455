@@ -99,11 +99,8 @@ public class EventFactory {
 			byte[] ipBytes = new byte[length];
 			in.read(ipBytes, 0, length);
 			String ip = new String(ipBytes);
-			System.out.println(ip);
 			int port = in.readInt();
-			System.out.println(port);
 			int id = in.readInt();
-			System.out.println(id);
 			return new Event(new OverlayNodeSendsDeregistration(ip, port, id));
 		} catch (IOException e) {
 			e.printStackTrace();

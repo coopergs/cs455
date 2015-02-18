@@ -1,13 +1,11 @@
 package cs455.overlay.node;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
 import cs455.overlay.transport.TCPConnection;
-import cs455.overlay.transport.TCPSender;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
 
@@ -62,19 +60,35 @@ public class Registry implements Manager{
 			}else if(nodeIDcount == MAX_OVERLAY_NODES){
 				r1 = new RegistryReportsRegistrationStatus(-1, "Maximum Overlay Nodes Reached");
 			}else{
-				TCPSender sender = new TCPSender(new Socket(r.ip, r.port));
-				nodes.add(new Node(r.ip, r.port, nodeIDs[nodeIDcount], sender));
+				nodes.add(new Node(r.ip, r.port, nodeIDs[nodeIDcount], tcp));
+				System.out.println("Registered messaging node. ID: " + nodeIDs[nodeIDcount]);
 				r1 = new RegistryReportsRegistrationStatus(nodeIDs[nodeIDcount], "Successfully Registered");
+				nodeIDcount++;
 			}
 			tcp.sendData(r1.getBytes());
+			
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 	}
 	
 	private void deregisterNode(Event e){
-		//deregister node
-		//send confirmation
+		OverlayNodeSendsDeregistration r = (OverlayNodeSendsDeregistration) e.message;
+		RegistryReportDeregistrationStatus r2;
+		try{
+			Node node = null;
+			for(int i=0;i<nodes.size();i++){
+				if(nodes.get(i).getID() == r.id)
+					node = nodes.get(i);
+			}
+			r2 = new RegistryReportDeregistrationStatus(1, "Sucessfully Deregistered");
+			if(node != null)
+				node.tcp.sendData(r2.getBytes());
+			System.out.println("Deregistered messaging node. ID: " + node.getID());
+			nodes.remove(node);
+		}catch(Exception e1){
+			e1.printStackTrace();
+		}
 	}
 	
 	private void acceptSetupStatus(Event e){
@@ -120,10 +134,17 @@ public class Registry implements Manager{
 		Scanner kb = new Scanner(System.in);
 		while(true){
 			String input = kb.nextLine();
-			if(input.equals("list-messaging-nodes"))
-				System.out.println("list-messaging-nodes");
-			else if(input.split(" ")[0].equals("setup-overlay"))
-				System.out.println("setup-overlay");
+			if(input.equals("list-messaging-nodes")){
+				if(registry.nodes.isEmpty()){
+					System.out.println("No messaging nodes");
+				}
+				for(Node n: registry.nodes)
+					System.out.printf("Node id: %d, Hostname: %s, Port Number: %d\n", n.getID(), n.getIP(), n.getPort());
+			}else if(input.split(" ")[0].equals("setup-overlay"))
+				if(registry.nodes.size()<10)
+					System.out.println("Cannot setup overlay with less than 10 registered messaging nodes.");
+				else
+					System.out.println("setup-overlay");
 			else if(input.equals("list-routing-tables"))
 				System.out.println("list-routing-tables");
 			else if(input.equals("start"))
