@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
@@ -31,6 +32,8 @@ public class Registry implements Manager{
 	private Integer[] nodeIDs;
 	private int nodeIDcount;
 	private ArrayList<Node> nodes;
+	private RoutingTable[] tables;
+	private int successfulOverlaySetups = 0;
 	
 	private void usage(){
 		System.err.println("usage: java Registry portnum");
@@ -92,7 +95,9 @@ public class Registry implements Manager{
 	}
 	
 	private void acceptSetupStatus(Event e){
-		//accept setup status
+		successfulOverlaySetups++;
+		if(successfulOverlaySetups == nodes.size())
+			System.out.println("All nodes report sucessful overlay setup.");
 	}
 	
 	private void acceptTaskFinished(Event e){
@@ -135,19 +140,63 @@ public class Registry implements Manager{
 		while(true){
 			String input = kb.nextLine();
 			if(input.equals("list-messaging-nodes")){
+				Collections.sort(registry.nodes);
 				if(registry.nodes.isEmpty()){
 					System.out.println("No messaging nodes");
 				}
 				for(Node n: registry.nodes)
 					System.out.printf("Node id: %d, Hostname: %s, Port Number: %d\n", n.getID(), n.getIP(), n.getPort());
-			}else if(input.split(" ")[0].equals("setup-overlay"))
+			}else if(input.split(" ")[0].equals("setup-overlay")){
+				Collections.sort(registry.nodes);
 				if(registry.nodes.size()<10)
 					System.out.println("Cannot setup overlay with less than 10 registered messaging nodes.");
-				else
-					System.out.println("setup-overlay");
-			else if(input.equals("list-routing-tables"))
-				System.out.println("list-routing-tables");
-			else if(input.equals("start"))
+				else{
+					try{
+						registry.tables = new RoutingTable[registry.nodes.size()];
+						int Rn = Integer.parseInt(input.split(" ")[1]);
+						if(Rn<=0)
+							throw new Exception();
+						int i;
+						for(i = 1;i<registry.nodes.size();i++){
+							i = 2*i;
+						}
+						if(Rn>=registry.nodes.size())
+							throw new Exception();
+						int[] totalIds = new int[registry.nodes.size()];
+						int[] ids = new int[Rn];
+						String[] ips = new String[Rn];
+						int[] ports = new int[Rn];
+						for(i=0;i<registry.nodes.size();i++){
+							totalIds[i] = registry.nodes.get(i).getID();
+						}
+						for(int nodenum = 0;nodenum<registry.nodes.size();nodenum++){
+							int node = 1;
+							for(i=0;i<Rn;i++){
+								int newnum = nodenum + node;
+								if(newnum>=registry.nodes.size())
+									newnum = newnum - registry.nodes.size();
+								ids[i] = registry.nodes.get(newnum).getID();
+								ips[i] = registry.nodes.get(newnum).getIP();
+								ports[i] = registry.nodes.get(newnum).getPort();
+								node = 2*node;
+							}
+							RegistrySendsNodeManifest r = new RegistrySendsNodeManifest(ids, ips, ports, totalIds);
+							registry.nodes.get(nodenum).tcp.sendData(r.getBytes());
+							registry.tables[i] = new RoutingTable(ids, ips, ports, totalIds, null);
+						}
+						System.out.println("Sending overlay to nodes. Please wait.");
+					}catch(Exception e){
+						System.out.println("Invalid argument for setup-overlay");
+					}
+				}
+			}else if(input.equals("list-routing-tables")){
+//				for(int i=0;i<registry.nodes.size();i++){
+//					System.out.printf("\n\n\nRouting table for ip:%s port:%d id:%d\n", registry.nodes.get(i).getIP(), registry.nodes.get(i).getPort(), registry.nodes.get(i).getID());
+//					for(int j=0;j<registry.tables[i].entrys.length;j++){
+//						System.out.printf("     ip:%s port:%d id:%d\n", registry.tables[i].entrys[j].ip, registry.tables[i].entrys[j].port, registry.tables[i].entrys[j].id);
+//					}
+//				}
+			}else if(input.equals("start"))
 				System.out.println("start");
 			else if(input.equals("exit"))
 				break;

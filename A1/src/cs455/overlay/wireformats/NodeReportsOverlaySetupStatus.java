@@ -7,8 +7,8 @@ import java.io.IOException;
 
 public class NodeReportsOverlaySetupStatus implements Protocol{
 	
-	private int status;
-	private String info;
+	public int status;
+	public String info;
 	
 	public NodeReportsOverlaySetupStatus(int status, String info){
 		this.status = status;

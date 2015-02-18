@@ -7,10 +7,10 @@ import java.io.IOException;
 
 public class RegistrySendsNodeManifest implements Protocol {
 	
-	private int[] ids;
-	private String[] ips;
-	private int[] ports;
-	private int[] totalIds;
+	public int[] ids;
+	public String[] ips;
+	public int[] ports;
+	public int[] totalIds;
 	
 	public RegistrySendsNodeManifest(int[] ids, String[] ips, int[] ports, int[] totalIds){
 		this.ids = ids;

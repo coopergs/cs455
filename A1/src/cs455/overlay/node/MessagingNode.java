@@ -1,9 +1,11 @@
 package cs455.overlay.node;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
+import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
@@ -28,14 +30,18 @@ public class MessagingNode implements Manager{
 	private String regHost;
 	private int regPort;
 	private TCPConnection registry;
-	private TCPServerThread serverThread;
+	private Thread serverThread;
 	private int recievingPort;
 	private int nodeID;
+	private RoutingTable routing;
 	
 	private void setReciever(){
 		try {
-			serverThread = new TCPServerThread(0, this);
-			recievingPort = serverThread.getPort();
+			TCPServerThread thread = new TCPServerThread(0,this);
+			recievingPort = thread.getPort();
+			serverThread = new Thread(thread);
+			serverThread.start();
+			
 		} catch (Exception e) {
 			System.out.println("Error setting up Reciever");
 		}
@@ -71,6 +77,8 @@ public class MessagingNode implements Manager{
 			taskInitiate(e);
 		else if(e.message instanceof RegistryRequestsTrafficSummary)
 			trafficSummary(e);
+		else if(e.message instanceof OverlayNodeSendsData)
+			recieveData(e);
 	}
 	
 	private void acceptRegistrationStatus(Event e){
@@ -79,6 +87,7 @@ public class MessagingNode implements Manager{
 		nodeID = r.status;
 		if(r.status < 0)
 			System.exit(1);
+		System.out.println("Node id# " + nodeID);
 	}
 	
 	private void acceptDeregistrationStatus(Event e){
@@ -88,7 +97,15 @@ public class MessagingNode implements Manager{
 	}
 	
 	private void processManifest(Event e){
-		//Process Manifest
+		RegistrySendsNodeManifest r = (RegistrySendsNodeManifest) e.message;
+		routing = new RoutingTable(r.ids, r.ips, r.ports, r.totalIds, this);
+		NodeReportsOverlaySetupStatus r2 = new NodeReportsOverlaySetupStatus(nodeID, "Overlay Setup Successful");
+		System.out.println("Recieved routing table from registry.");
+		try {
+			registry.sendData(r2.getBytes());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	private void taskInitiate(Event e){
@@ -97,6 +114,11 @@ public class MessagingNode implements Manager{
 	
 	private void trafficSummary(Event e){
 		//traffic Summary
+	}
+	
+	private void recieveData(Event e){
+		OverlayNodeSendsData r = (OverlayNodeSendsData) e.message;
+		System.out.println(r.payload);
 	}
 	
 	public static void main(String[] args){

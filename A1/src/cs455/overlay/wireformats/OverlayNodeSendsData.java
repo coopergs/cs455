@@ -7,10 +7,10 @@ import java.io.IOException;
 
 public class OverlayNodeSendsData implements Protocol{
 	
-	private int destination;
-	private int source;
-	private int payload;
-	private int[] path;
+	public int destination;
+	public int source;
+	public int payload;
+	public int[] path;
 	
 	public OverlayNodeSendsData(int destination, int source, int payload, int[] path){
 		this.destination = destination;
