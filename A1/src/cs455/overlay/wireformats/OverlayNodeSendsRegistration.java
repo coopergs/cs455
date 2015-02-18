@@ -7,8 +7,8 @@ import java.io.IOException;
 
 public class OverlayNodeSendsRegistration implements Protocol{
 	
-	private String ip;
-	private int port;
+	public String ip;
+	public int port;
 	
 	public OverlayNodeSendsRegistration(String ip, int port){
 		this.ip = ip;

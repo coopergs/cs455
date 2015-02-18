@@ -3,7 +3,7 @@ package cs455.overlay.transport;
 import java.io.IOException;
 import java.net.Socket;
 
-import cs455.overlay.node.Node;
+import cs455.overlay.node.Manager;
 
 /**
  * 
@@ -17,15 +17,15 @@ import cs455.overlay.node.Node;
 public class TCPConnection {
 	
 	private Socket socket;
-	private Node node;
+	private Manager manager;
 	private TCPSender sender;
 	private Thread reciever;
 	
-	public TCPConnection(Socket s, Node n)throws IOException{
+	public TCPConnection(Socket s, Manager m)throws IOException{
 		socket = s;
-		node = n;
+		manager = m;
 		sender = new TCPSender(socket);
-		reciever = new Thread(new TCPRecieverThread(socket, node));
+		reciever = new Thread(new TCPRecieverThread(socket, manager, this));
 		reciever.start();
 	}
 	

@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import cs455.overlay.transport.TCPConnection;
+import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
 
 /**
@@ -16,7 +17,7 @@ import cs455.overlay.wireformats.*;
  *
  */
 
-public class MessagingNode implements Node{
+public class MessagingNode implements Manager{
 	
 	/**
 	 * Main method
@@ -27,16 +28,24 @@ public class MessagingNode implements Node{
 	private String regHost;
 	private int regPort;
 	private TCPConnection registry;
+	private TCPServerThread serverThread;
+	private int recievingPort;
+	
+	private void setReciever(){
+		try {
+			serverThread = new TCPServerThread(0, this);
+			recievingPort = serverThread.getPort();
+		} catch (Exception e) {
+			System.out.println("Error setting up Reciever");
+		}
+	}
 	
 	private void connectToRegistry(){
 		  try{
 				registry = new TCPConnection(new Socket(regHost, regPort), this);
 			    System.out.println("Connected to registry on port " + regPort);
-//			    InetAddress inetAddr = InetAddress.getLocalHost();
-//			    byte[] addr = inetAddr.getAddress();
-//			    System.out.println(new String(addr));
-//			    System.out.println(InetAddress.getLocalHost());
-
+			    OverlayNodeSendsRegistration message = new OverlayNodeSendsRegistration(InetAddress.getLocalHost().getHostAddress(), recievingPort);
+			    registry.sendData(message.getBytes());
 			   } catch (Exception e) {
 			     System.out.println("Unable to connect to host or port");
 			     System.exit(1);
@@ -50,7 +59,7 @@ public class MessagingNode implements Node{
 		System.exit(1);
 	}
 	
-	public void processEvent(Event e){
+	public void processEvent(Event e, TCPConnection tcp){
 		if(e.message instanceof RegistryReportsRegistrationStatus)
 			acceptRegistrationStatus(e);
 		else if(e.message instanceof RegistryReportDeregistrationStatus)
@@ -64,7 +73,9 @@ public class MessagingNode implements Node{
 	}
 	
 	private void acceptRegistrationStatus(Event e){
-		//Accept Registration
+		RegistryReportsRegistrationStatus r = (RegistryReportsRegistrationStatus) e.message;
+		System.out.println(r.message);
+		System.out.println(r.status);
 	}
 	
 	private void acceptDeregistrationStatus(Event e){
@@ -93,6 +104,8 @@ public class MessagingNode implements Node{
 		}catch(Exception e){
 			messagingnode.usage();
 		}
+		
+		messagingnode.setReciever();
 		
 		messagingnode.connectToRegistry();
 		

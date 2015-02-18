@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-import cs455.overlay.node.Node;
+import cs455.overlay.node.Manager;
 
 /**
  * 
@@ -21,13 +21,14 @@ public class TCPServerThread implements Runnable{
 	private int port;
 	private ServerSocket server;
 	private TCPConnectionsCache cache;
-	private Node node;
+	private Manager node;
 	
-	public TCPServerThread(int portnum, Node n) throws Exception{
+	public TCPServerThread(int portnum, Manager n) throws Exception{
 		try {
 			this.port = portnum;
 			this.node = n;
 			server = new ServerSocket(port);
+			port = server.getLocalPort();
 			cache = new TCPConnectionsCache();
 		} catch (Exception e) {
 			throw new Exception("Could not listen on port " + port);
@@ -44,11 +45,14 @@ public class TCPServerThread implements Runnable{
 			}
 			try {
 				Socket s = server.accept();
-				int id = cache.add(new TCPConnection(s, node));
-				System.out.println("Connection Established: id# " + id);
+				cache.add(new TCPConnection(s, node));
 			} catch (IOException e) {}
 		}
 		System.out.println("Server thread terminated");
+	}
+	
+	public int getPort(){
+		return port;
 	}
 
 }
