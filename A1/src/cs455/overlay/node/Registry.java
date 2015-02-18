@@ -1,6 +1,5 @@
 package cs455.overlay.node;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,7 +7,6 @@ import java.util.Scanner;
 
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
-import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import cs455.overlay.wireformats.*;
 
 /**
@@ -36,8 +34,8 @@ public class Registry implements Manager{
 	//private RoutingTable[] tables;
 	private int successfulOverlaySetups = 0;
 	private int taskFinished = 0;
-	private int trafficRecieved = 0;
-	private StatisticsCollectorAndDisplay stats;
+//	private int trafficRecieved = 0;
+//	private StatisticsCollectorAndDisplay stats;
 	
 	private void usage(){
 		System.err.println("usage: java Registry portnum");
@@ -110,14 +108,14 @@ public class Registry implements Manager{
 		taskFinished++;
 		if(taskFinished == nodes.size()){
 			System.out.println("All nodes report sucessful task completion");
-			RegistryRequestsTrafficSummary r = new RegistryRequestsTrafficSummary();
-			for(Node n: nodes){
-				try {
-					n.tcp.sendData(r.getBytes());
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
+//			RegistryRequestsTrafficSummary r = new RegistryRequestsTrafficSummary();
+//			for(Node n: nodes){
+//				try {
+//					n.tcp.sendData(r.getBytes());
+//				} catch (IOException e1) {
+//					e1.printStackTrace();
+//				}
+//			}
 		}
 	}
 	

@@ -1,0 +1,33 @@
+Cooper Scott
+
+cs455.overlay.node
+	.Manager.java		Interface for classes with a main method
+	.MessagingNode.java	Class that runs as a node of the overlay
+	.Node.java		Node object that holds info about the overlay nodes for the registry
+	.Registry.java		Class that runs as the registry. Keeps track and manages nodes
+cs455.overlay.routing
+	.RoutingEntry.java	Object that is a element of the routing table
+	.RoutingTable.java	Object that holds the routing info for the nodes
+cs455.overlay.trasport
+	.TCPConnection.java		Object that manages a socket connection
+	.TCPConnectionsCache.java	Object that holds TCPConnection objects
+	.TCPRecieverThread.java		Thread class that can be run to recieve incoming messages
+	.TCPSender.java			Thread that sends data. Can execute as a thread if needed
+	.TCPServerThread.java		Object that opens a port and creates TCPConnections from incoming connections
+cs455.overlay.util
+	.StatisticsCollectorAndDisplay.java	Class that collects the traffic data and displays when prompted
+	.TrafficData.java			Object that holds data for StatisticsCollectorAndDisplay
+cs455.overlay.wireformats
+	.Event.java				Object that holds wireformats to tell a manager what to do
+	.EventFactory.java			Takes byte arrays and creates appropreate events
+	.NodeReportsOverlaySetupStatus.java	
+	.OverlayNodeReportsTaskFinished.java	WIREFORMATS SENT BY NODES
+	.OverlayNodeSendsData.java
+	.OverlayNodeSendsDeregistration.java
+	.OverlayNodeSendsRegistration.java
+	.Protocol.java				Interface for the wireformat classes. Also holds some constants
+	.RegistryReportDeregistrationStatus.java
+	.RegistryReportRegistrationStatus.java	WIREFORMATS SENT BY REGISTRY
+	.RegistryRequestTaskInitiate.java
+	.RegistryRequestTrafficSummary.java
+	.RegistrySendsNodeManifest.java
