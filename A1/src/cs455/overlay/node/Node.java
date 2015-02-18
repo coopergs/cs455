@@ -8,6 +8,7 @@ public class Node implements Comparable<Object>{
 	private int port;
 	private int overlayID;
 	public TCPConnection tcp;
+	public String routingInfo;
 	
 	public Node(String ip, int port, int id, TCPConnection tcp){
 		this.ip = ip;

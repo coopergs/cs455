@@ -1,23 +1,25 @@
 package cs455.overlay.routing;
 
 import java.net.Socket;
-import cs455.overlay.node.Manager;
-import cs455.overlay.transport.TCPConnection;
+
+import cs455.overlay.transport.TCPSender;
 
 public class RoutingEntry {
 	
 	public int id;
 	public String ip;
 	public int port;
-	public TCPConnection tcp;
+	public Thread tcp;
+	public TCPSender sender;
 	
-	public RoutingEntry(int id, String ip, int port, Manager m){
+	public RoutingEntry(int id, String ip, int port){
 		this.id = id;
 		this.ip = ip;
 		this.port = port;
 		try {
-			if(m != null)
-				tcp = new TCPConnection(new Socket(ip, port), m);
+				sender = new TCPSender(new Socket(ip, port));
+				tcp = new Thread(sender);
+				tcp.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,13 +1,14 @@
 package cs455.overlay.node;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
-import cs455.overlay.routing.RoutingTable;
 import cs455.overlay.transport.TCPConnection;
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import cs455.overlay.wireformats.*;
 
 /**
@@ -32,8 +33,11 @@ public class Registry implements Manager{
 	private Integer[] nodeIDs;
 	private int nodeIDcount;
 	private ArrayList<Node> nodes;
-	private RoutingTable[] tables;
+	//private RoutingTable[] tables;
 	private int successfulOverlaySetups = 0;
+	private int taskFinished = 0;
+	private int trafficRecieved = 0;
+	private StatisticsCollectorAndDisplay stats;
 	
 	private void usage(){
 		System.err.println("usage: java Registry portnum");
@@ -96,16 +100,37 @@ public class Registry implements Manager{
 	
 	private void acceptSetupStatus(Event e){
 		successfulOverlaySetups++;
-		if(successfulOverlaySetups == nodes.size())
+		if(successfulOverlaySetups == nodes.size()){
 			System.out.println("All nodes report sucessful overlay setup.");
+			System.out.println("Registry now ready to initiate tasks");
+		}
 	}
 	
 	private void acceptTaskFinished(Event e){
-		//accept task finished
+		taskFinished++;
+		if(taskFinished == nodes.size()){
+			System.out.println("All nodes report sucessful task completion");
+			RegistryRequestsTrafficSummary r = new RegistryRequestsTrafficSummary();
+			for(Node n: nodes){
+				try {
+					n.tcp.sendData(r.getBytes());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	private void acceptTrafficSummary(Event e){
-		//accept traffic Summary
+		System.out.println("traffic");
+//		if(trafficRecieved==0)
+//			stats = new StatisticsCollectorAndDisplay(nodes);
+//		trafficRecieved++;
+//		OverlayNodeReportsTrafficSummary r = (OverlayNodeReportsTrafficSummary) e.message;
+//		stats.recieveData(r);
+//		if(trafficRecieved == nodes.size())
+//			stats.display();
+		
 	}
 	
 	public static void main(String[] args){
@@ -148,11 +173,7 @@ public class Registry implements Manager{
 					System.out.printf("Node id: %d, Hostname: %s, Port Number: %d\n", n.getID(), n.getIP(), n.getPort());
 			}else if(input.split(" ")[0].equals("setup-overlay")){
 				Collections.sort(registry.nodes);
-				if(registry.nodes.size()<10)
-					System.out.println("Cannot setup overlay with less than 10 registered messaging nodes.");
-				else{
 					try{
-						registry.tables = new RoutingTable[registry.nodes.size()];
 						int Rn = Integer.parseInt(input.split(" ")[1]);
 						if(Rn<=0)
 							throw new Exception();
@@ -182,22 +203,31 @@ public class Registry implements Manager{
 							}
 							RegistrySendsNodeManifest r = new RegistrySendsNodeManifest(ids, ips, ports, totalIds);
 							registry.nodes.get(nodenum).tcp.sendData(r.getBytes());
-							registry.tables[i] = new RoutingTable(ids, ips, ports, totalIds, null);
+							registry.nodes.get(nodenum).routingInfo= "Routing table for ip:" + registry.nodes.get(nodenum).getIP() + " port:" + registry.nodes.get(nodenum).getPort() + " id:" + registry.nodes.get(nodenum).getID() + "\n";
+							for(int j=0;j<ids.length;j++){
+								registry.nodes.get(nodenum).routingInfo += "     ip:" + ips[j] + " port:" + ports[j] + " id:" + ids[j] + "\n";
+							}
 						}
 						System.out.println("Sending overlay to nodes. Please wait.");
 					}catch(Exception e){
 						System.out.println("Invalid argument for setup-overlay");
 					}
-				}
 			}else if(input.equals("list-routing-tables")){
-//				for(int i=0;i<registry.nodes.size();i++){
-//					System.out.printf("\n\n\nRouting table for ip:%s port:%d id:%d\n", registry.nodes.get(i).getIP(), registry.nodes.get(i).getPort(), registry.nodes.get(i).getID());
-//					for(int j=0;j<registry.tables[i].entrys.length;j++){
-//						System.out.printf("     ip:%s port:%d id:%d\n", registry.tables[i].entrys[j].ip, registry.tables[i].entrys[j].port, registry.tables[i].entrys[j].id);
-//					}
-//				}
-			}else if(input.equals("start"))
-				System.out.println("start");
+				for(Node n: registry.nodes){
+					System.out.println(n.routingInfo + "\n\n\n");
+				}
+			}else if(input.split(" ")[0].equals("start"))
+				try{
+					int num = Integer.parseInt(input.split(" ")[1]);
+					if(num<=0)
+						throw new Exception();
+					RegistryRequestsTaskInitiate r = new RegistryRequestsTaskInitiate(num);
+					for(Node n: registry.nodes){
+						n.tcp.sendData(r.getBytes());
+					}
+				}catch(Exception e){
+					System.out.println("Invalid argument for start. Must be an integer > 0.");
+				}
 			else if(input.equals("exit"))
 				break;
 			else

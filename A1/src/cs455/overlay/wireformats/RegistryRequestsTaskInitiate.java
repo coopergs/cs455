@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class RegistryRequestsTaskInitiate implements Protocol{
 	
-	private int numPackets;
+	public int numPackets;
 	
 	public RegistryRequestsTaskInitiate(int packets){
 		this.numPackets = packets;

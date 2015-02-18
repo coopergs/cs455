@@ -12,7 +12,7 @@ public class RoutingTable {
 		this.allids = allids;
 		entrys = new RoutingEntry[ids.length];
 		for(int i=0;i<ids.length;i++)
-			entrys[i] = new RoutingEntry(ids[i], ips[i], ports[i], m);
+			entrys[i] = new RoutingEntry(ids[i], ips[i], ports[i]);
 		manager = m;
 	}
 

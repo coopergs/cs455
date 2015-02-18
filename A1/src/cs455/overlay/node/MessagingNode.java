@@ -3,6 +3,9 @@ package cs455.overlay.node;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 import java.util.Scanner;
 
 import cs455.overlay.routing.RoutingTable;
@@ -34,6 +37,13 @@ public class MessagingNode implements Manager{
 	private int recievingPort;
 	private int nodeID;
 	private RoutingTable routing;
+	
+	//Tracking
+	private int sendTracker = 0;
+	private int recievedTracker = 0;
+	private int relayedTracker = 0;
+	private long sumSent = 0;
+	private long sumRecieved = 0;
 	
 	private void setReciever(){
 		try {
@@ -109,16 +119,70 @@ public class MessagingNode implements Manager{
 	}
 	
 	private void taskInitiate(Event e){
-		//task initiate
+		RegistryRequestsTaskInitiate r = (RegistryRequestsTaskInitiate) e.message;
+		int num = r.numPackets;
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		Random rand = new Random();
+		for(int i=0;i<routing.allids.length;i++)
+			if(routing.allids[i] != nodeID)
+				list.add(routing.allids[i]);
+		for(int i=0; i<num; i++){
+			Collections.shuffle(list);
+			int randomNum = rand.nextInt();
+			int[] path = {};
+			OverlayNodeSendsData r1 = new OverlayNodeSendsData(list.get(1), nodeID, randomNum, path);
+			findRoute(r1, list.get(1));
+			sendTracker++;
+			sumSent += randomNum;
+		}
+		try {
+			registry.sendData(new OverlayNodeReportsTaskFinished(InetAddress.getLocalHost().getHostAddress(), recievingPort, nodeID).getBytes());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private void findRoute(OverlayNodeSendsData r, int destination){
+		for(int i=0;i<routing.entrys.length-1;i++){
+			if(routing.entrys[i].id <= destination && destination < routing.entrys[i+1].id){
+				routing.entrys[i].sender.addToQueue(r);
+				synchronized(routing.entrys[i].sender.queue){
+					routing.entrys[i].sender.queue.notify();
+				}
+				return;
+			}
+				
+		}
+		routing.entrys[routing.entrys.length-1].sender.addToQueue(r);
+		synchronized(routing.entrys[routing.entrys.length-1].sender.queue){
+			routing.entrys[routing.entrys.length-1].sender.queue.notify();
+		}
 	}
 	
 	private void trafficSummary(Event e){
-		//traffic Summary
+		try {
+			registry.sendData(new OverlayNodeReportsTrafficSummary(nodeID, sendTracker, relayedTracker, sumSent, recievedTracker, sumRecieved).getBytes());
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
 	private void recieveData(Event e){
 		OverlayNodeSendsData r = (OverlayNodeSendsData) e.message;
-		System.out.println(r.payload);
+		if(r.destination == nodeID){
+			//System.out.println(r.payload);
+			recievedTracker++;
+			sumRecieved += r.payload;
+		}else{
+			//System.out.println("Not mine");
+			int[] newpath = new int[(r.path.length)+1];
+			for(int i=0;i<r.path.length;i++)
+				newpath[i] = r.path[i];
+			newpath[newpath.length-1] = nodeID;
+			r.path = newpath;
+			findRoute(r,r.destination);
+			relayedTracker++;
+		}
 	}
 	
 	public static void main(String[] args){
@@ -141,9 +205,13 @@ public class MessagingNode implements Manager{
 		Scanner kb = new Scanner(System.in);
 		while(true){
 			String input = kb.nextLine();
-			if(input.equals("print-counters-and-diagnostics"))
-				System.out.println("print-counters-and-diagnostics");
-			else if(input.equals("exit-overlay")){
+			if(input.equals("print-counters-and-diagnostics")){
+				System.out.println("Packets Sent: " +messagingnode.sendTracker);
+				System.out.println("Packets Recieved: " + messagingnode.recievedTracker);
+				System.out.println("Packets Relayed: " + messagingnode.relayedTracker);
+				System.out.println("Sum of Packets Sent: " + messagingnode.sumSent);
+				System.out.println("Sum of Packets Recieved: " + messagingnode.sumRecieved);
+			}else if(input.equals("exit-overlay")){
 				try {
 					OverlayNodeSendsDeregistration r = new OverlayNodeSendsDeregistration(InetAddress.getLocalHost().getHostAddress(), messagingnode.recievingPort, messagingnode.nodeID);
 					messagingnode.registry.sendData(r.getBytes());

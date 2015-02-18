@@ -7,12 +7,12 @@ import java.io.IOException;
 
 public class OverlayNodeReportsTrafficSummary implements Protocol{
 	
-	int id;
-	int packetsSent;
-	int packetsRelayed;
-	long sumSent;
-	int packetsRecieved;
-	long sumRecieved;
+	public int id;
+	public int packetsSent;
+	public int packetsRelayed;
+	public long sumSent;
+	public int packetsRecieved;
+	public long sumRecieved;
 	
 	public OverlayNodeReportsTrafficSummary(int id, int packetsSent, int packetsRelayed, long sumSent, int packetsRecieved, long sumRecieved){
 		this.id = id;
