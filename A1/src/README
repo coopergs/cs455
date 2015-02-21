@@ -1,5 +1,8 @@
 Cooper Scott
 
+The Traffic collecting portion is commented out of my registry code. I couldn't get it to work in time.
+The data collection should work on the MessagingNode side.
+
 cs455.overlay.node
 	.Manager.java		Interface for classes with a main method
 	.MessagingNode.java	Class that runs as a node of the overlay
