@@ -1,11 +1,16 @@
 package cs455.harvester;
 
+import cs455.harvester.crawl.URLExtractor;
+import cs455.harvester.crawlgraph.CrawlGraph;
+import cs455.harvester.crawlgraph.GraphNode;
+
 public class Crawler {
 	
 	private int port;
 	private int pool_size;
 	private String url;
 	private String config_file;
+	public static final URLExtractor urlEx = new URLExtractor();
 	
 	private void usage(){
 		System.out.println("usage: java cs455.harvester.Crawler portnum thread-pool-size root-url path-to-config-file");
@@ -28,8 +33,10 @@ public class Crawler {
 			c.usage();
 		}
 		
-		
-		
+		CrawlGraph graph = new CrawlGraph();
+		GraphNode node = new GraphNode(c.url);
+		graph.addNew(node);
+		urlEx.crawl(c.url, c.url, graph, 5);
 	}
 
 }
