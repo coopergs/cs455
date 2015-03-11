@@ -8,12 +8,12 @@ public class Pool {
 	
 	private LinkedList<Thread> pool;
 	private LinkedList<Task> tasks;
-	//private int maxThreadList;
+	private int maxThreadList;
 	
 	public Pool(int size){
 		pool = new LinkedList<Thread>();
 		tasks = new LinkedList<Task>();
-		//maxThreadList = size;
+		maxThreadList = size;
 		for(int i=0;i<size;i++){
 			Thread t = new Executor(this);
 			pool.add(t);
@@ -73,6 +73,16 @@ public class Pool {
 			Executor e = checkoutThread();
 			e.setTask(t);
 			e.begin();
+		}
+	}
+	
+	public boolean checkIfDone(){
+		synchronized(pool){
+			synchronized(tasks){
+				if(tasks.isEmpty() && pool.size() == (maxThreadList))
+					return true;
+				return false;
+			}
 		}
 	}
 

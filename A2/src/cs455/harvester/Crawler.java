@@ -56,12 +56,19 @@ public class Crawler {
 		try{
 			c.port = Integer.parseInt(args[0]);
 			c.pool_size = Integer.parseInt(args[1]);
+			if(args[2].equals("http://www.bmb.colostate.edu/index.cfm")){
+				args[2] = "http://www.bmb.colostate.edu/";
+
+			}if(args[2].equals("http://www.cs.colostate.edu/cstop/index.html")){
+				args[2] = "http://www.cs.colostate.edu/";
+			}
 			c.url = args[2];
 			c.config_file = new File(args[3]);
 			c.readFile(c.config_file);
 		}catch(Exception e){
 			c.usage();
 		}
+		
 //		c.server = new ServerThread(c.port);
 //		c.server.start();
 		
@@ -71,6 +78,7 @@ public class Crawler {
 		Pool p = new Pool(c.pool_size);
 		p.addTask(new CrawlTask(c.url, c.url, graph, 5, p));
 		p.matchPairs();
+		System.out.println("make files");
 	}
 
 }

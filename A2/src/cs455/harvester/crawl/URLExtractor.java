@@ -28,7 +28,7 @@ public class URLExtractor {
 				 pageUrl = domain + extension;
 			 HttpURLConnection con = (HttpURLConnection)(new URL(pageUrl).openConnection());
 			 con.connect();
-			 if(con.getResponseCode() == 404){
+			 if(con.getResponseCode() == 404 || con.getResponseCode() == 403){
 				 graph.addToBroken(extension);
 				 return;
 			 }
@@ -67,7 +67,7 @@ public class URLExtractor {
 					 }
 					  graph.addToIn(subUrl, extension);
 					 //System.out.println("IN DOMAIN "  + subUrl);
-				 }else if(aTag.getAttributeValue("href").startsWith("/")){
+				 }else if(aTag.getAttributeValue("href").startsWith("/") || aTag.getAttributeValue("href").startsWith("./")){
 					 graph.addToOut(extension, aTag.getAttributeValue("href"));
 					 if(!graph.exists(aTag.getAttributeValue("href"))){
 						 graph.addNew(new GraphNode(aTag.getAttributeValue("href")));

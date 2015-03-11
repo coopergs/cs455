@@ -30,7 +30,12 @@ public class Executor extends Thread{
 					this.wait();
 				}
 				t.execute();
+				Thread.sleep(1000);//niceness
 				p.returnThread(this);
+				if(p.checkIfDone()){
+					//Done
+					//Would write files here: REMOVED because of permission issues
+				}
 			}
 		}catch(InterruptedException e){
 			return;
