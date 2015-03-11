@@ -1,14 +1,17 @@
 package cs455.harvester.crawlgraph;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 public class CrawlGraph {
 	
 	private HashMap<String, GraphNode> map;
+	private ArrayList<String> broken;
 	
 	public CrawlGraph(){
 		map = new HashMap<String, GraphNode>();
+		broken = new ArrayList<String>();
 	}
 	
 	public synchronized void addNew(GraphNode node){
@@ -16,7 +19,7 @@ public class CrawlGraph {
 	}
 	
 	public synchronized boolean exists(String url){
-		return map.get(url) != null;
+		return (map.get(url) != null) || broken.contains(url);
 	}
 	
 	public synchronized void addToIn(String url, String newIn){
@@ -29,6 +32,11 @@ public class CrawlGraph {
 			map.get(url).out.add(out);
 	}
 	
+	public synchronized void addToBroken(String s){
+		if(!broken.contains(s))
+			broken.add(s);
+	}
+	
 	public synchronized void traverseMap(){
 		Collection<GraphNode> collection = map.values();
 		for(GraphNode gn: collection){
@@ -39,6 +47,9 @@ public class CrawlGraph {
 			for(String s: gn.out){
 				System.out.println("	OUT:" + s);
 			}
+		}
+		for(String s: broken){
+			System.out.println("BROKEN: " + s);
 		}
 	}
 
